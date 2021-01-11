@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Rss Application</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Rss Application</string>
+    <string name="nav_header_subtitle">huynhlely140699@gmail.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Trang chủ</string>
+    <string name="menu_expertise">Kiến thức chuyên môn</string>
+    <string name="menu_social_life">Đời sống - Xã hội</string>
+    <string name="menu_news">Thời sự</string>
+    <string name="menu_world">Thế giới</string>
+    <string name="menu_sport">Thể thao</string>
+    <string name="menu_science_and_technology">Khoa học - Công nghệ</string>
+    <string name="menu_health">Sức khỏe</string>
+    <string name="menu_economy">Kinh tế</string>
+    <string name="menu_law">Pháp luật</string>
+    <string name="menu_cultural">Văn hóa</string>
+    <string name="menu_education">Giáo dục</string>
+
+    <string name="web_vnexpress">vnexpress.net</string>
+    <string name="web_thanhnien">thanhnien.vn</string>
+    <string name="web_tuoitre">tuoitre.vn</string>
+    <string name="web_vtc">vtc.vn</string>
+    <string name="web_cand">cand.vn</string>
+    <string name="web_24h">24h.com.vn</string>
+
+</resources>

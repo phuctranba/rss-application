@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+    <group android:checkableBehavior="single">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
+        android:checked="true"
+        android:title="@string/menu_home" />
+
+    <item android:title="@string/menu_social_life">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_news"
+                    android:icon="@drawable/ic_news"
+                    android:title="@string/menu_news" />
+                <item
+                    android:id="@+id/nav_world"
+                    android:icon="@drawable/ic_world"
+                    android:title="@string/menu_world" />
+                <item
+                    android:id="@+id/nav_sport"
+                    android:icon="@drawable/ic_sport"
+                    android:title="@string/menu_sport" />
+                <item
+                    android:id="@+id/nav_science_and_technology"
+                    android:icon="@drawable/ic_science_and_technology"
+                    android:title="@string/menu_science_and_technology" />
+                <item
+                    android:id="@+id/nav_health"
+                    android:icon="@drawable/ic_health"
+                    android:title="@string/menu_health" />
+            </group>
+        </menu>
+    </item>
+
+    <item android:title="@string/menu_expertise">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_economy"
+                    android:icon="@drawable/ic_economy"
+                    android:title="@string/menu_economy" />
+                <item
+                    android:id="@+id/nav_law"
+                    android:icon="@drawable/ic_law"
+                    android:title="@string/menu_law" />
+                <item
+                    android:id="@+id/nav_cultural"
+                    android:icon="@drawable/ic_cultural"
+                    android:title="@string/menu_cultural" />
+                <item
+                    android:id="@+id/nav_education"
+                    android:icon="@drawable/ic_education"
+                    android:title="@string/menu_education" />
+            </group>
+        </menu>
+    </item>
+    </group>
+</menu>
