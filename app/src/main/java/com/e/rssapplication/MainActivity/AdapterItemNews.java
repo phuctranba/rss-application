@@ -1,7 +1,6 @@
 package com.e.rssapplication.MainActivity;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +20,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+//Adapter cài đặt giao diện từng dòng tin
 public class AdapterItemNews extends BaseAdapter {
 
     private Context context;
     private LayoutInflater layoutInflater;
+//    List danh sách tin đầu vào
     private List<News> data;
 
     public AdapterItemNews(Context context, List<News> data) {
@@ -72,28 +73,40 @@ public class AdapterItemNews extends BaseAdapter {
 
         News news = data.get(i);
 
+//        Cài giá trị của tin vào giao diện
 
+//        Set tiêu đề
         viewHolder.textViewTitle.setText(news.getTitle());
-        viewHolder.textViewDescription.setText(news.getPubdate()!=null?news.getDescription():"");
+//        Set mô tả
+        viewHolder.textViewDescription.setText(news.getDescription()!=null?news.getDescription():"");
+//        Set ngày tạo
         viewHolder.textViewDate.setText(news.getPubdate()!=null?convertDateToString(news.getPubdate()):"");
 
-        if (news.getImage() != null)
+//        Set hình ảnh
+        if (news.getImage() != null) {
+//            Nếu có ảnh thì hiện
             Picasso.get().load(news.getImage()).into(viewHolder.imageViewThumbnail);
-        else
+        }
+        else {
+//            Nếu tin không có ảnh thì load ảnh của báo
             Picasso.get().load(logoWeb(news.getWebSite())).into(viewHolder.imageViewThumbnail);
+        }
 
-        Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_list);
+//        Cài đặt hiệu ứng fade (hiện dần) cho item list
+        Animation animation = AnimationUtils.loadAnimation(context, R.anim.fade_list);
         view.startAnimation(animation);
 
         return view;
     }
 
+//    Format ngày để hiển thị
     public String convertDateToString(Date date) {
         String pattern = "HH:mm dd/MM/yyyy";
         DateFormat df = new SimpleDateFormat(pattern);
         return df.format(date);
     }
 
+//    Bộ lọc ảnh web dựa theo website nguồn
     private int logoWeb(EnumWebSite webSite){
         switch (webSite){
             case THANHNIEN: return R.drawable.logo_thanhnien;

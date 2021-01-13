@@ -62,7 +62,9 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     AdapterItemNews adapterItemNews;
     DatabaseHelper databaseHelper;
+//    Biến lưu giá trị website đang xem
     EnumWebSite enumWebSiteDefault;
+//    Biến lưu giá trị loại tin đang xem
     EnumTypeNews enumTypeNews;
     ImageView imageViewHeaderDrawer;
     WebView webView;
@@ -77,10 +79,13 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_cultural);
+//        Set tiêu đề cho màn hình
         setTitle("Trang chủ");
 
+//        Khai báo các thành phần sử dụng
         init();
 
+//        Gọi lấy dữ liệu khi mở app
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -88,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+//        Set các sự kiện ấn (click)
         setClick();
     }
 
@@ -96,7 +102,9 @@ public class MainActivity extends AppCompatActivity {
         enumWebSiteDefault = EnumWebSite.valueOf(MySharedPreferences.getPrefDefaultWebsite(this));
         enumTypeNews = EnumTypeNews.HOMEPAGE;
 
+//        Kiểm tra xem lần đầu mở app không
         if (MySharedPreferences.getPrefFirstOpen(this)) {
+//            Nếu phải thì khởi tạo danh sách link rss
             databaseHelper.initRssLink();
             MySharedPreferences.setPrefFirstOpen(this, false);
         }
@@ -119,7 +127,11 @@ public class MainActivity extends AppCompatActivity {
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         imageViewHeaderDrawer = navigationView.getHeaderView(0).findViewById(R.id.imageView);
+
+//        Cài đặt ảnh nền cho drawer
         setImageViewHeaderDrawer();
+
+//        Sự kiện ấn các item trong drawer
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -127,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
                         menuItem.setChecked(true);
                         drawer.closeDrawers();
 
+//                        Khi ấn một item bất kì
+//                        Đổi biến lưu giá trị loại tin đang xem
+//                        Thay đổi tiêu đề màn hình theo loại
                         switch (menuItem.getItemId()){
                             case R.id.nav_home: {
                                 enumTypeNews = EnumTypeNews.HOMEPAGE;
@@ -180,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
+//                        Gọi task lấy dữ liệu ở loại tin mới vừa chọn
                         new ReadRss().execute(databaseHelper.getRssLink(enumTypeNews,enumWebSiteDefault).getLink());
 
                         return true;
@@ -188,14 +204,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setClick(){
+
+//        Sự kiện ấn item trong list tin tức
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//                    Nếu quay ngang màn hình, hiển thị sang bên phải
                     webView.getSettings().setJavaScriptEnabled(true);
                     // Load local HTML from url
                     webView.loadUrl(newsList.get(i).getLink());
                 }else {
+//                    Nếu quay dọc, xem tin trong màn hình mới
                     Intent intent = new Intent(MainActivity.this, WebActivity.class);
                     intent.putExtra("URL",newsList.get(i).getLink());
                     startActivity(intent);
@@ -203,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+//        Set sự kiện ấn nút chon website
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -219,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+//    Sự kiện khi ấn nút back
     @Override
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -251,8 +273,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+//    Hộp chọn các website
     public void displayDialogSelectWeb() {
         final View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_select_website, null);
+
+//        Mỗi cardview là một website
         CardView cardViewVnExpress = dialogLayout.findViewById(R.id.vnexpress);
         CardView cardViewThanhNien = dialogLayout.findViewById(R.id.thanhnien);
         CardView cardViewTuoiTre = dialogLayout.findViewById(R.id.tuoitre);
@@ -264,6 +289,8 @@ public class MainActivity extends AppCompatActivity {
         editDialog.setView(dialogLayout);
         AlertDialog dialog = editDialog.create();
 
+
+//        Đổi màu theo loại website đang chọn
         switch (enumWebSiteDefault){
             case VNEXPRESS: cardViewVnExpress.setCardBackgroundColor(0xFF94D5E1); break;
             case THANHNIEN: cardViewThanhNien.setCardBackgroundColor(0xFF94D5E1); break;
@@ -273,6 +300,13 @@ public class MainActivity extends AppCompatActivity {
             case CAND: cardViewCand.setCardBackgroundColor(0xFF94D5E1); break;
         }
 
+//        Cài đặt các sự kiện khi ấn vào website
+//        Các bước
+//        Ẩn hộp chọn
+//        Set ảnh drawer theo website vừa chọn
+//        Thay đổi biến giá trị web đang xem
+//        Lưu giá trị web lần cuối mở vào SharedPreferences
+//        Gọi hàm lấy dữ liệu theo website mới chọn
         cardViewVnExpress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -354,6 +388,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+//    Hàm lấy giá trị
     @SuppressLint("StaticFieldLeak")
     private class ReadRss extends AsyncTask<String, Void, String> {
 
@@ -362,6 +397,7 @@ public class MainActivity extends AppCompatActivity {
             StringBuilder stringBuilder = new StringBuilder();
 
             try {
+//                Gọi đến url để lấy kết quả xml trả về chứa các thông tin bài báo
                 URL url = new URL(strings[0]);
                 InputStreamReader inputStreamReader = new InputStreamReader(url.openConnection().getInputStream());
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -380,28 +416,41 @@ public class MainActivity extends AppCompatActivity {
             return stringBuilder.toString();
         }
 
+//        Tiến hành đọc kết quả trả về
         @SuppressLint("SetJavaScriptEnabled")
         @Override
         protected void onPostExecute(String s) {
             DateFormat formatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss");
             Document doc = Jsoup.parse(s, "", Parser.xmlParser());
 
+//            Tiến hành đọc với Jsoup
+//            Bóc tách các thẻ item chứa các bài báo
             Elements itemElements = doc.getElementsByTag("item");
             for (int i = 0; i < itemElements.size(); i++) {
                 Element item = itemElements.get(i);
+//                Lấy thông tin thẻ title - tiêu đề
                 String title = removeCdata(item.getElementsByTag("title").first().text());
+//                Lấy thông tin ngày đăng
                 String pubDate = removeCdata(item.getElementsByTag("pubDate").first().text()).trim();
+//                Cắt phần đuôi múi giờ ở chuỗi thời gian
                 pubDate = pubDate.substring(0, pubDate.lastIndexOf(" "));
+//                Lấy thông tin link tin
                 String link = removeCdata(item.getElementsByTag("link").first().text());
+//                Lấy mô tả
+//                Mô tả của website vtc.vn các lấy khác các web còn lại
                 Document descriptionDoc;
                 if(enumWebSiteDefault.equals(EnumWebSite.VTC))
                     descriptionDoc = Jsoup.parse(removeCdata(item.getElementsByTag("description").first().text()));
                 else
                     descriptionDoc = Jsoup.parse(removeCdata(item.getElementsByTag("description").first().toString().trim()));
+
+//                Lấy ảnh thumbnail
                 String imageLink = descriptionDoc.getElementsByTag("img").first()!=null?descriptionDoc.getElementsByTag("img").first().attr("src"):null;
                 String description = descriptionDoc.text();
 
+//                Sau khi lấy các giá trị, đưa vào 1 news
                 News news = new News();
+//                Set các giá trị tiêu đề, mô tả, link, ảnh thumbnail, laoij tin, website
                 news.setTitle(title);
                 news.setDescription(description);
                 news.setLink(link);
@@ -416,9 +465,13 @@ public class MainActivity extends AppCompatActivity {
                 newsList.add(news);
             }
 
+//            Cập nhật thay đổi giao diện
             adapterItemNews.notifyDataSetChanged();
+
+//            Kéo danh sách lên đầu
             listView.smoothScrollToPosition(0);
 
+//            Nếu màn hình quay ngang, load giao diện tin đầu danh sách sang màn hình bên phải
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 webView.getSettings().setJavaScriptEnabled(true);
                 webView.getSettings().setLoadWithOverviewMode(true);
@@ -443,6 +496,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+//    Xóa chữ CDATA
     String removeCdata(String data) {
         data = data.replace("<![CDATA[", "");
         data = data.replace("]]>", "");

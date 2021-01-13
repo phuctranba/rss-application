@@ -2,10 +2,16 @@ package com.e.rssapplication.DataBase;
 
 import java.util.Date;
 
+//Đối tượng lưu tin
 public class News {
+
+//    Bao gồm id, tiêu đề, mô tả, đường link đọc, ảnh thumbnail
     private String id, title, description, link, image;
+//    Ngày đăng
     private Date pubdate;
+//    Nguồn web site
     private EnumWebSite webSite;
+//    Loại tin
     private EnumTypeNews typeNews;
 
     public EnumTypeNews getTypeNews() {

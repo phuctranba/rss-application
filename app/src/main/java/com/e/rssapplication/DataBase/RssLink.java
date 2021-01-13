@@ -1,8 +1,12 @@
 package com.e.rssapplication.DataBase;
 
+//Đối tượng lưu link nguồn rss
 public class RssLink {
+//    Nguồn loại tin
     private EnumTypeNews enumTypeNews;
+//    Nguồn website
     private EnumWebSite webSite;
+//    Link và id
     private String link, id;
 
     public RssLink() {

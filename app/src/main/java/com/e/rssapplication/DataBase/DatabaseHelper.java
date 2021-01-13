@@ -20,10 +20,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "Note_Manager";
 
+
+//    Các bảng dữ liệu
     private static final String TABLE_NEWS = "News";
     private static final String TABLE_HTML_CONTENT = "HtmlContent";
     private static final String TABLE_RSS_LINK = "RssLink";
 
+
+//    Các trường dữ liệu bảng news
     private static final String COLUMN_NEWS_ID = "News_Id";
     private static final String COLUMN_NEWS_TITLE = "News_Title";
     private static final String COLUMN_NEWS_DESCRIPTION = "News_Description";
@@ -33,6 +37,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_NEWS_TYPE = "News_Type";
     private static final String COLUMN_NEWS_WEB = "News_Web";
 
+
+//    Các trường dữ liệu bẳng rss linh
     private static final String COLUMN_RSS_LINK_ID = "Rss_Link_Id";
     private static final String COLUMN_RSS_LINK_TYPE = "Rss_Link_Type";
     private static final String COLUMN_RSS_LINK_WEB = "Rss_Link_Web";
@@ -45,6 +51,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+
+//        Khởi tạo các bảng
         String scriptAssembly = "CREATE TABLE " + TABLE_NEWS + "("
                 + COLUMN_NEWS_ID + " TEXT PRIMARY KEY,"
                 + COLUMN_NEWS_TITLE + " TEXT,"
@@ -69,14 +77,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+
+//        Nếu cập nhật lại DB, xóa các bảng và tạo lại DB
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NEWS);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_RSS_LINK);
         onCreate(sqLiteDatabase);
     }
 
+
+//    Thêm một bản ghi news mới
     public void addNews(News news) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
 
+
+//        Map các thuộc tính vào các trường giá trị
         ContentValues values = new ContentValues();
         values.put(COLUMN_NEWS_ID, news.getId());
         values.put(COLUMN_NEWS_TITLE, news.getTitle());
@@ -88,13 +102,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_NEWS_TYPE, news.getTypeNews().name());
         values.put(COLUMN_NEWS_WEB, news.getWebSite().name());
 
+
+//        Câu lệnh insret
         sqLiteDatabase.insert(TABLE_NEWS, null, values);
 
         sqLiteDatabase.close();
     }
 
+
+//    Thêm bản ghi rss link
     public void addRssLink(RssLink rssLink) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+
+        //        Map các thuộc tính vào các trường giá trị
 
         ContentValues values = new ContentValues();
         values.put(COLUMN_RSS_LINK_ID, rssLink.getId());
@@ -102,19 +122,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_RSS_LINK_WEB, rssLink.getWebSite().name());
         values.put(COLUMN_RSS_LINK_LINK, rssLink.getLink());
 
+//        Câu lệnh insert
         sqLiteDatabase.insert(TABLE_RSS_LINK, null, values);
 
         sqLiteDatabase.close();
     }
 
+
+//    Lấy link rss ra
     public RssLink getRssLink(EnumTypeNews enumTypeNews, EnumWebSite enumWebSite) {
 
         RssLink rssLink = null;
+
+//        Câu lệnh query
         String selectQuery = "SELECT  * FROM " + TABLE_RSS_LINK + " WHERE " + COLUMN_RSS_LINK_TYPE + " = '" + enumTypeNews.name() + "' AND " + COLUMN_RSS_LINK_WEB + " = '" + enumWebSite.name() + "'";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
+//        Đọc từng bản ghi
         if (cursor.moveToFirst()) {
             do {
                 rssLink = new RssLink();
@@ -125,9 +151,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
 
+        //Trả về kết quả
         return rssLink;
     }
 
+
+//    Khởi tạo cơ sở dữ liệu link rss của các trang báo
+//    Chỉ được chạy lần đầu
     public void initRssLink() {
         List<RssLink> rssLinkList = new ArrayList<>();
 
@@ -203,6 +233,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         rssLinkList.add(new RssLink(UUID.randomUUID().toString(), EnumTypeNews.SCIENCEANDTECHNOLOGY, EnumWebSite.HAITUH, "https://cdn.24h.com.vn/upload/rss/congnghethongtin.rss"));
         rssLinkList.add(new RssLink(UUID.randomUUID().toString(), EnumTypeNews.HEALTH, EnumWebSite.HAITUH, "https://cdn.24h.com.vn/upload/rss/suckhoedoisong.rss"));
 
+
+//        Gọi thêm dữ liệu sau khi đã có dánh sách các link
         for (RssLink rssLink : rssLinkList) {
             addRssLink(rssLink);
         }

@@ -31,7 +31,11 @@ public class WebActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.getSettings().setUseWideViewPort(true);
+
+//        Load bản tin lên web view
         webView.loadUrl(link);
+//        Cài đặt sao cho ấn vào link khác trong web thì vẫn trong màn hình ấy
+//        thay vì sang trình duyệt của máy
         webView.setWebViewClient(new WebViewClient());
     }
 
