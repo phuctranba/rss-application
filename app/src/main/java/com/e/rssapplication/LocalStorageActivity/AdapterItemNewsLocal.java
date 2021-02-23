@@ -1,6 +1,7 @@
-package com.e.rssapplication.MainActivity;
+package com.e.rssapplication.LocalStorageActivity;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,20 +16,21 @@ import com.e.rssapplication.DataBase.Utilities;
 import com.e.rssapplication.R;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 //Adapter cài đặt giao diện từng dòng tin
-public class AdapterItemNews extends BaseAdapter {
+public class AdapterItemNewsLocal extends BaseAdapter {
 
     private Context context;
     private LayoutInflater layoutInflater;
 //    List danh sách tin đầu vào
     private List<News> data;
 
-    public AdapterItemNews(Context context, List<News> data) {
+    public AdapterItemNewsLocal(Context context, List<News> data) {
         this.context = context;
         this.data = data;
         this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -50,21 +52,25 @@ public class AdapterItemNews extends BaseAdapter {
     }
 
     private static class ViewHolder {
-        private TextView textViewDescription;
-        private TextView textViewTitle;
-        private TextView textViewDate;
-        private ImageView imageViewThumbnail;
+        private TextView textViewDescription; /*Chữ mô tả*/
+        private TextView textViewTitle; /*Tiêu đề tin*/
+        private TextView textViewDate; /* Ngày đăng tin*/
+        private ImageView imageViewThumbnail;   /*Ảnh thumnbail, thu nhỏ*/
+        private TextView textViewTypeNews;  /*Loại tin*/
+        private TextView textViewTypeStorage;  /* Loại lưu trữ, có thể đọc online hay offline*/
     }
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         ViewHolder viewHolder;
         if (view == null) {
-            view = layoutInflater.inflate(R.layout.item_news, null);
+            view = layoutInflater.inflate(R.layout.item_news_local, null);
             viewHolder = new ViewHolder();
             viewHolder.textViewDescription = (TextView) view.findViewById(R.id.description);
             viewHolder.textViewTitle = (TextView) view.findViewById(R.id.title);
             viewHolder.textViewDate = (TextView) view.findViewById(R.id.date);
+            viewHolder.textViewTypeNews = (TextView) view.findViewById(R.id.typeNews);
+            viewHolder.textViewTypeStorage = (TextView) view.findViewById(R.id.typeStorage);
             viewHolder.imageViewThumbnail = (ImageView) view.findViewById(R.id.thumbnail);
             view.setTag(viewHolder);
         } else {
@@ -81,11 +87,18 @@ public class AdapterItemNews extends BaseAdapter {
         viewHolder.textViewDescription.setText(news.getDescription()!=null?news.getDescription():"");
 //        Set ngày tạo
         viewHolder.textViewDate.setText(news.getPubdate()!=null?convertDateToString(news.getPubdate()):"");
+//        Set loại tin
+        viewHolder.textViewTypeNews.setText(news.getTypeNews().toString());
+//        Set loại lưu trữ
+        viewHolder.textViewTypeStorage.setText(news.isSaved()?"Offline":"Online");
+        viewHolder.textViewTypeStorage.setTextColor(news.isSaved()? Color.RED:Color.GREEN);
 
 //        Set hình ảnh
         if (news.getImage() != null) {
 //            Nếu có ảnh thì hiện
-            Picasso.get().load(news.getImage()).into(viewHolder.imageViewThumbnail);
+//            Picasso.get().load(news.getImage()).into(viewHolder.imageViewThumbnail);
+            Picasso.get().load(new File(news.getImage()))
+                    .into(viewHolder.imageViewThumbnail);
         }
         else {
 //            Nếu tin không có ảnh thì load ảnh của báo

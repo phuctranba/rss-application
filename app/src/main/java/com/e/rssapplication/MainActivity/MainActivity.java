@@ -1,40 +1,47 @@
 package com.e.rssapplication.MainActivity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Menu;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.e.rssapplication.DataBase.DatabaseHelper;
 import com.e.rssapplication.DataBase.EnumTypeNews;
 import com.e.rssapplication.DataBase.EnumWebSite;
 import com.e.rssapplication.DataBase.MySharedPreferences;
 import com.e.rssapplication.DataBase.News;
+import com.e.rssapplication.DataBase.Utilities;
+import com.e.rssapplication.LocalStorageActivity.LocalStorageActivity;
 import com.e.rssapplication.R;
 import com.e.rssapplication.WebActivity.WebActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
-
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.cardview.widget.CardView;
-import androidx.core.view.GravityCompat;
-
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -43,6 +50,7 @@ import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -60,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     List<News> newsList;
     FloatingActionButton fab;
     ListView listView;
+    TextView textViewEmpty;
     AdapterItemNews adapterItemNews;
     DatabaseHelper databaseHelper;
 //    Biến lưu giá trị website đang xem
@@ -70,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
     WebView webView;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_cultural);
+//        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_cultural);
 //        Set tiêu đề cho màn hình
         setTitle("Trang chủ");
 
@@ -95,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
 //        Set các sự kiện ấn (click)
         setClick();
+        checkPermission();
     }
 
     void init() {
@@ -117,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
 
         fab = findViewById(R.id.fab);
         listView = findViewById(R.id.listView);
+        textViewEmpty = findViewById(R.id.emptyView);
+        listView.setEmptyView(textViewEmpty);
 
         adapterItemNews = new AdapterItemNews(this, newsList);
         listView.setAdapter(adapterItemNews);
@@ -201,6 +214,35 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     }
                 });
+
+        File rootFilePicture = new File(Utilities.ROOT_DIR_STORAGE_PICTURE_CACHE);
+        if (!rootFilePicture.exists())
+            rootFilePicture.mkdir();
+
+        File rootFileHtml = new File(Utilities.ROOT_DIR_STORAGE_HTML_CACHE);
+        if (!rootFileHtml.exists())
+            rootFileHtml.mkdir();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void checkPermission(){
+        if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+
+        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 2);
+        }
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            checkPermission();
+        }
     }
 
     void setClick(){
@@ -217,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
                 }else {
 //                    Nếu quay dọc, xem tin trong màn hình mới
                     Intent intent = new Intent(MainActivity.this, WebActivity.class);
-                    intent.putExtra("URL",newsList.get(i).getLink());
+                    intent.putExtra("ITEM",newsList.get(i));
                     startActivity(intent);
                 }
             }
@@ -267,6 +309,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
+        }
+
+        switch (item.getItemId()){
+            case R.id.action_localstorage:
+                startActivity(new Intent(this, LocalStorageActivity.class));
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -396,6 +444,12 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             StringBuilder stringBuilder = new StringBuilder();
 
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm.getActiveNetworkInfo() == null ||
+                    !cm.getActiveNetworkInfo().isConnectedOrConnecting()) {
+                return null;
+            }
+
             try {
 //                Gọi đến url để lấy kết quả xml trả về chứa các thông tin bài báo
                 URL url = new URL(strings[0]);
@@ -420,6 +474,7 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("SetJavaScriptEnabled")
         @Override
         protected void onPostExecute(String s) {
+            if(s==null) return;
             DateFormat formatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss");
             Document doc = Jsoup.parse(s, "", Parser.xmlParser());
 
@@ -457,6 +512,7 @@ public class MainActivity extends AppCompatActivity {
                 news.setImage(imageLink);
                 news.setTypeNews(enumTypeNews);
                 news.setWebSite(enumWebSiteDefault);
+                news.setSaved(false);
                 try {
                     news.setPubdate(formatter.parse(pubDate));
                 } catch (ParseException e) {

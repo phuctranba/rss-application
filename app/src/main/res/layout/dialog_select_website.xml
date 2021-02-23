@@ -14,7 +14,7 @@
         android:layout_height="wrap_content">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/vnexpress"
+            android:id="@+id/cand"
             android:layout_margin="@dimen/_10sdp"
             android:padding="@dimen/_5sdp"
             app:cardCornerRadius="@dimen/_5sdp"
@@ -31,7 +31,7 @@
                     android:scaleType="fitCenter"
                     android:layout_width="@dimen/_80sdp"
                     android:layout_height="@dimen/_40sdp"
-                    android:src="@drawable/logo_vnexpress"/>
+                    android:src="@drawable/logo_cand"/>
 
                 <TextView
                     android:textColor="@color/gray"
@@ -39,7 +39,7 @@
                     android:layout_marginTop="@dimen/_5sdp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/web_vnexpress" />
+                    android:text="@string/web_cand" />
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
@@ -154,7 +154,7 @@
         android:layout_height="wrap_content">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cand"
+            android:id="@+id/vnexpress"
             android:layout_margin="@dimen/_10sdp"
             android:padding="@dimen/_5sdp"
             app:cardCornerRadius="@dimen/_5sdp"
@@ -171,7 +171,7 @@
                     android:scaleType="fitCenter"
                     android:layout_width="@dimen/_80sdp"
                     android:layout_height="@dimen/_40sdp"
-                    android:src="@drawable/logo_cand"/>
+                    android:src="@drawable/logo_vnexpress"/>
 
                 <TextView
                     android:textColor="@color/gray"
@@ -179,7 +179,7 @@
                     android:layout_marginTop="@dimen/_5sdp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/web_cand" />
+                    android:text="@string/web_vnexpress" />
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>

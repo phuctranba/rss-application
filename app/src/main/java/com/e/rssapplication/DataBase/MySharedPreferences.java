@@ -11,7 +11,7 @@ public class MySharedPreferences {
 //    Giá trị ghi nhớ lần đầu đăng nhâp
     private static String PREF_FIRST_OPEN = "pref_first_open";
 
-//    Giá trị ghi nhớ web nguồn tin lần cuối được mwor
+//    Giá trị ghi nhớ web nguồn tin lần cuối được mở
     private static String PREF_DEFAULT_WEBSITE = "pref_default_website";
 
 
@@ -39,6 +39,6 @@ public class MySharedPreferences {
 //    Lấy giá trị biến ghi nhớ web nguồn lần cuối mở
     public static String getPrefDefaultWebsite(Context context){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return  preferences.getString(PREF_DEFAULT_WEBSITE,EnumWebSite.VNEXPRESS.name());
+        return  preferences.getString(PREF_DEFAULT_WEBSITE,EnumWebSite.CAND.name());
     }
 }

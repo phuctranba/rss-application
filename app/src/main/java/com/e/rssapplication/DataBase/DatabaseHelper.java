@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,16 +19,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
 
-    private static final String DATABASE_NAME = "Note_Manager";
+    private static final String DATABASE_NAME = "Rss_Manager";
 
 
-//    Các bảng dữ liệu
+    //    Các bảng dữ liệu
     private static final String TABLE_NEWS = "News";
     private static final String TABLE_HTML_CONTENT = "HtmlContent";
     private static final String TABLE_RSS_LINK = "RssLink";
 
 
-//    Các trường dữ liệu bảng news
+    //    Các trường dữ liệu bảng news
     private static final String COLUMN_NEWS_ID = "News_Id";
     private static final String COLUMN_NEWS_TITLE = "News_Title";
     private static final String COLUMN_NEWS_DESCRIPTION = "News_Description";
@@ -36,9 +37,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_NEWS_PUBDATE = "News_Pubdate";
     private static final String COLUMN_NEWS_TYPE = "News_Type";
     private static final String COLUMN_NEWS_WEB = "News_Web";
+    private static final String COLUMN_NEWS_SAVED = "News_Saved";
+    private static final String COLUMN_NEWS_PATH = "News_Path";
 
 
-//    Các trường dữ liệu bẳng rss linh
+    //    Các trường dữ liệu bảng rss link
     private static final String COLUMN_RSS_LINK_ID = "Rss_Link_Id";
     private static final String COLUMN_RSS_LINK_TYPE = "Rss_Link_Type";
     private static final String COLUMN_RSS_LINK_WEB = "Rss_Link_Web";
@@ -61,7 +64,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_NEWS_IMAGE + " TEXT,"
                 + COLUMN_NEWS_PUBDATE + " INTEGER,"
                 + COLUMN_NEWS_TYPE + " TEXT,"
-                + COLUMN_NEWS_WEB + " TEXT"
+                + COLUMN_NEWS_WEB + " TEXT,"
+                + COLUMN_NEWS_SAVED + " INTEGER,"
+                + COLUMN_NEWS_PATH + " TEXT"
                 + ")";
 
         String scriptHistory = "CREATE TABLE " + TABLE_RSS_LINK + "("
@@ -70,7 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_RSS_LINK_WEB + " TEXT,"
                 + COLUMN_RSS_LINK_LINK + " TEXT"
                 + ")";
-        // Execute Script.
+        // Chạy script
         sqLiteDatabase.execSQL(scriptAssembly);
         sqLiteDatabase.execSQL(scriptHistory);
     }
@@ -85,32 +90,168 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-//    Thêm một bản ghi news mới
+    //    Thêm một bản ghi news mới
     public void addNews(News news) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
 
+        news.setTitle(formatString(news.getTitle()));
 
 //        Map các thuộc tính vào các trường giá trị
         ContentValues values = new ContentValues();
         values.put(COLUMN_NEWS_ID, news.getId());
         values.put(COLUMN_NEWS_TITLE, news.getTitle());
-        values.put(COLUMN_NEWS_DESCRIPTION, news.getDescription());
+        if (news.getDescription() != null)
+            values.put(COLUMN_NEWS_DESCRIPTION, news.getDescription());
         values.put(COLUMN_NEWS_LINK, news.getLink());
-        values.put(COLUMN_NEWS_IMAGE, news.getImage());
+        if (news.getImage() != null)
+            values.put(COLUMN_NEWS_IMAGE, news.getImage());
         if (news.getPubdate() != null)
             values.put(COLUMN_NEWS_PUBDATE, news.getPubdate().getTime());
         values.put(COLUMN_NEWS_TYPE, news.getTypeNews().name());
         values.put(COLUMN_NEWS_WEB, news.getWebSite().name());
+        values.put(COLUMN_NEWS_SAVED, news.isSaved() ? 1 : 0);
+        if (news.isSaved() && news.getPath() != null)
+            values.put(COLUMN_NEWS_PATH, news.getPath());
 
 
 //        Câu lệnh insret
         sqLiteDatabase.insert(TABLE_NEWS, null, values);
-
         sqLiteDatabase.close();
     }
 
+    //    Sửa một bản ghi news
+    public int updateNews(News news) {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        news.setTitle(formatString(news.getTitle()));
 
-//    Thêm bản ghi rss link
+//        Map các thuộc tính vào các trường giá trị
+//        Các if để check có giá trị mới đưa vào
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_NEWS_TITLE, news.getTitle());
+        if (news.getDescription() != null)
+            values.put(COLUMN_NEWS_DESCRIPTION, news.getDescription());
+        values.put(COLUMN_NEWS_LINK, news.getLink());
+        if (news.getImage() != null)
+            values.put(COLUMN_NEWS_IMAGE, news.getImage());
+        if (news.getPubdate() != null)
+            values.put(COLUMN_NEWS_PUBDATE, news.getPubdate().getTime());
+        values.put(COLUMN_NEWS_TYPE, news.getTypeNews().name());
+        values.put(COLUMN_NEWS_WEB, news.getWebSite().name());
+        values.put(COLUMN_NEWS_SAVED, news.isSaved() ? 1 : 0);
+        if (news.isSaved() && news.getPath() != null)
+            values.put(COLUMN_NEWS_PATH, news.getPath());
+
+        // updating row
+        return sqLiteDatabase.update(TABLE_NEWS, values, COLUMN_NEWS_ID + " = ?",
+                new String[]{String.valueOf(news.getId())});
+    }
+
+//    Xóa một bản ghi tin tức news
+    public void deleteNews(News news) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NEWS, COLUMN_NEWS_ID + " = ?",
+                new String[] { String.valueOf(news.getId()) });
+        db.close();
+    }
+
+    //    Thêm một bản ghi news mới
+    public News getNewsByTitleAndType(String title, EnumWebSite enumWebSite) {
+        News news = null;
+
+        title = formatString(title);
+//        Câu lệnh query
+        String selectQuery = "SELECT  * FROM " + TABLE_NEWS + " WHERE UPPER(" + COLUMN_NEWS_TITLE + ") = '" + title.toUpperCase() + "' AND " + COLUMN_NEWS_WEB + " = '" + enumWebSite.name() + "'";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+//        Đọc từng bản ghi
+        if (cursor.moveToFirst()) {
+            do {
+                news = new News();
+                news.setId(cursor.getString(0));
+                news.setTitle(cursor.getString(1));
+                news.setDescription(cursor.getString(2));
+                news.setLink(cursor.getString(3));
+                news.setImage(cursor.getString(4));
+                news.setPubdate(new Date(cursor.getLong(5)));
+                news.setTypeNews(EnumTypeNews.valueOf(cursor.getString(6)));
+                news.setWebSite(EnumWebSite.valueOf(cursor.getString(7)));
+                news.setSaved(cursor.getInt(8) == 1);
+                news.setPath(cursor.getString(9));
+
+            } while (cursor.moveToNext());
+        }
+
+        db.close();
+        //Trả về kết quả
+        return news;
+    }
+
+    //    Lấy tất cả tin tức news đã lưu
+    public List<News> getAllNews() {
+        List<News> newsList = new ArrayList<>();
+        String selectQuery = "SELECT  * FROM " + TABLE_NEWS;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                News news = new News();
+                news.setId(cursor.getString(0));
+                news.setTitle(cursor.getString(1));
+                news.setDescription(cursor.getString(2));
+                news.setLink(cursor.getString(3));
+                news.setImage(cursor.getString(4));
+                news.setPubdate(new Date(cursor.getLong(5)));
+                news.setTypeNews(EnumTypeNews.valueOf(cursor.getString(6)));
+                news.setWebSite(EnumWebSite.valueOf(cursor.getString(7)));
+                news.setSaved(cursor.getInt(8) == 1);
+                news.setPath(cursor.getString(9));
+
+                newsList.add(news);
+            } while (cursor.moveToNext());
+        }
+
+        db.close();
+        //Trả về kết quả
+        return newsList;
+    }
+
+
+    //    Lấy tin tức theo website
+    public List<News> getNewsByWebsite(EnumWebSite webSite) {
+        List<News> newsList = new ArrayList<>();
+        String selectQuery = "SELECT  * FROM " + TABLE_NEWS + " WHERE " + COLUMN_NEWS_WEB + " = '" + webSite.name() + "'";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                News news = new News();
+                news.setId(cursor.getString(0));
+                news.setTitle(cursor.getString(1));
+                news.setDescription(cursor.getString(2));
+                news.setLink(cursor.getString(3));
+                news.setImage(cursor.getString(4));
+                news.setPubdate(new Date(cursor.getLong(5)));
+                news.setTypeNews(EnumTypeNews.valueOf(cursor.getString(6)));
+                news.setWebSite(EnumWebSite.valueOf(cursor.getString(7)));
+                news.setSaved(cursor.getInt(8) == 1);
+                news.setPath(cursor.getString(9));
+
+                newsList.add(news);
+            } while (cursor.moveToNext());
+        }
+
+        db.close();
+        //Trả về kết quả
+        return newsList;
+    }
+
+    //    Thêm bản ghi rss link
     public void addRssLink(RssLink rssLink) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
 
@@ -129,7 +270,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-//    Lấy link rss ra
+    //    Lấy link rss ra
     public RssLink getRssLink(EnumTypeNews enumTypeNews, EnumWebSite enumWebSite) {
 
         RssLink rssLink = null;
@@ -156,7 +297,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-//    Khởi tạo cơ sở dữ liệu link rss của các trang báo
+    //    Khởi tạo cơ sở dữ liệu link rss của các trang báo
 //    Chỉ được chạy lần đầu
     public void initRssLink() {
         List<RssLink> rssLinkList = new ArrayList<>();
@@ -240,5 +381,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+
+//    Định dạng vài kí tự đặc biệt như ' - tránh làm sai câu truy vấn sql bằng cách thay hết bằng " hoặc xóa
+    private String formatString(String text) {
+        text = text.replace("'", "\"");
+        text = text.replace("-", "");
+        return text;
+    }
 
 }
