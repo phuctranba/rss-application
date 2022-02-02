@@ -15,8 +15,6 @@ import java.util.UUID;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final String TAG = "SQLite";
-
     private static final int DATABASE_VERSION = 1;
 
     private static final String DATABASE_NAME = "Rss_Manager";
@@ -24,7 +22,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //    Các bảng dữ liệu
     private static final String TABLE_NEWS = "News";
-    private static final String TABLE_HTML_CONTENT = "HtmlContent";
     private static final String TABLE_RSS_LINK = "RssLink";
 
 
